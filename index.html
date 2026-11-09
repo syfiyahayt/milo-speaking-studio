@@ -1,3 +1,266 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FlyAsia · Milo's Speaking Studio</title><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet"><style>
-*{box-sizing:border-box}body{margin:0;font-family:Quicksand,Arial,sans-serif;background:#fff7eb;background-image:radial-gradient(#e7c9ad 1.5px,transparent 1.5px);background-size:22px 22px;color:#5e5650}.wrap{max-width:760px;margin:30px auto;padding:18px}.hero{background:#bce7df;border:3px solid #6eb8ae;border-radius:24px 18px 27px 17px;padding:24px;text-align:center;box-shadow:6px 7px 0 #e7b9ae}.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px}.hero h1{font:700 clamp(30px,6vw,48px) Fredoka;margin:10px 0}.paper{margin-top:24px;background:#fffdf6;border:3px solid #e9b5ad;border-radius:22px 17px 24px 16px;padding:24px;box-shadow:5px 6px 0 #efd9c4}.paper h2{font:600 24px Fredoka;margin:0 0 10px}.prompts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.prompt{background:#fff0cf;border:2px dashed #e5bd78;border-radius:14px;padding:16px 10px;text-align:center;font:600 16px Fredoka}.prompt b{display:block;color:#c7747b;margin-bottom:6px}.btn{border:0;border-radius:14px;background:#e68f85;color:#fff;font:700 16px Fredoka;padding:13px 20px;box-shadow:3px 4px 0 #bd6c65;cursor:pointer;margin:4px}.btn.alt{background:#73bdb0;box-shadow:3px 4px 0 #4c8e84}.btn:disabled{opacity:.45;cursor:not-allowed}.status{font-weight:700;line-height:1.6;margin-top:14px}audio{display:none;width:100%;margin:20px 0}audio.ready{display:block}.tip{font-size:13px;line-height:1.6}.footer{text-align:center;font-weight:700;font-size:12px;margin:25px}.recording{animation:pulse 1s infinite}@keyframes pulse{50%{opacity:.55}}@media(max-width:500px){.prompts{grid-template-columns:1fr}.wrap{margin:8px auto}.paper{padding:16px}}</style></head><body><main class="wrap"><header class="hero"><div class="eyebrow">✈ FLYASIA · MILO'S LITTLE TRAVEL JOURNAL</div><h1>🎙️ Milo's Speaking Studio!</h1><p>🏝️ MISSION 04 · BEACH DAY 🐱</p></header><section class="paper"><h2>🗣️ Your turn to speak!</h2><p>Look at your beach timeline. Tell Milo's story using three full sentences.</p><div class="prompts"><div class="prompt"><b>FIRST…</b>First, Milo ______.</div><div class="prompt"><b>NEXT…</b>Next, he ______.</div><div class="prompt"><b>FINALLY…</b>Finally, he ______.</div></div><p>Ready? Press <b>Start Recording</b>, say your sentences, then press <b>Stop</b>. Listen to your voice and try again if you want!</p><button class="btn" id="start">🎙️ Start Recording</button><button class="btn alt" id="stop" disabled>⏹ Stop Recording</button><button class="btn alt" id="again" disabled>🗑️ Delete & Try Again</button><p class="status" id="status" role="status" aria-live="polite">Ready to record! 🎤</p><audio id="playback" controls aria-label="Listen to your recording"></audio><p class="tip">🔐 Your voice stays in this tab. Nothing is uploaded or saved online. The recording disappears when you close or reload this page.</p><p class="tip"><b>Finished?</b> Go back to Mission 4 on Google Sites, tick the speaking practice box, and claim your badge! 🏅</p></section><p class="footer">FLYASIA ✈ MILO'S HOLIDAY ADVENTURE · MADE WITH ♥</p></main><script>
-const $=id=>document.getElementById(id);let recorder,stream,chunks=[],url;const status=msg=>$('status').textContent=msg;function cleanup(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}function resetAudio(){const a=$('playback');a.pause();a.removeAttribute('src');a.load();a.classList.remove('ready');if(url){URL.revokeObjectURL(url);url=null}}$('start').onclick=async()=>{if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){status('Microphone unavailable. Open this page through a public HTTPS address in Chrome or Safari.');return}try{stream=await navigator.mediaDevices.getUserMedia({audio:true});resetAudio();chunks=[];const types=['audio/webm;codecs=opus','audio/mp4','audio/webm'];const type=types.find(t=>MediaRecorder.isTypeSupported(t));recorder=new MediaRecorder(stream,type?{mimeType:type}:undefined);recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};recorder.onstop=()=>{cleanup();$('start').disabled=false;$('stop').disabled=true;$('start').classList.remove('recording');if(!chunks.length){status('No sound was recorded. Please try again.');return}url=URL.createObjectURL(new Blob(chunks,{type:recorder.mimeType}));$('playback').src=url;$('playback').classList.add('ready');$('again').disabled=false;status('✨ Great job! Press Play to listen to your voice.')};recorder.start(250);$('start').disabled=true;$('start').classList.add('recording');$('stop').disabled=false;$('again').disabled=true;status('🔴 Recording! Say your three sentences.')}catch(e){cleanup();status(e.name==='NotAllowedError'?'Microphone permission denied. Check your browser microphone settings.':'Could not start recording. Try a secure HTTPS page.')}};$('stop').onclick=()=>{if(recorder?.state==='recording'){status('Finishing your recording…');recorder.stop()}};$('again').onclick=()=>{resetAudio();$('again').disabled=true;status('Ready to record again! 🎤')};window.addEventListener('pagehide',()=>{cleanup();resetAudio()});</script></body></html>
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlyAsia · Milo's Speaking Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Quicksand,Arial,sans-serif;
+  background:#fff7eb;
+  background-image:radial-gradient(#e7c9ad 1.5px,transparent 1.5px);
+  background-size:22px 22px;
+  color:#5e5650;
+}
+.wrap{max-width:760px;margin:30px auto;padding:18px}
+.hero{
+  background:#bce7df;
+  border:3px solid #6eb8ae;
+  border-radius:24px 18px 27px 17px;
+  padding:24px;
+  text-align:center;
+  box-shadow:6px 7px 0 #e7b9ae;
+}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px}
+.hero h1{
+  font:700 clamp(30px,6vw,48px) Fredoka;
+  margin:10px 0;
+}
+.paper{
+  margin-top:24px;
+  background:#fffdf6;
+  border:3px solid #e9b5ad;
+  border-radius:22px 17px 24px 16px;
+  padding:24px;
+  box-shadow:5px 6px 0 #efd9c4;
+}
+.paper h2{font:600 24px Fredoka;margin:0 0 10px}
+.prompts{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:20px 0;
+}
+.prompt{
+  background:#fff0cf;
+  border:2px dashed #e5bd78;
+  border-radius:14px;
+  padding:16px 10px;
+  text-align:center;
+  font:600 16px Fredoka;
+}
+.prompt b{display:block;color:#c7747b;margin-bottom:6px}
+.btn{
+  border:0;
+  border-radius:14px;
+  background:#e68f85;
+  color:#fff;
+  font:700 16px Fredoka;
+  padding:13px 20px;
+  box-shadow:3px 4px 0 #bd6c65;
+  cursor:pointer;
+  margin:4px;
+}
+.btn.alt{
+  background:#73bdb0;
+  box-shadow:3px 4px 0 #4c8e84;
+}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.status{font-weight:700;line-height:1.6;margin-top:14px}
+audio{display:none;width:100%;margin:20px 0}
+audio.ready{display:block}
+.tip{font-size:13px;line-height:1.6}
+.footer{
+  text-align:center;
+  font-weight:700;
+  font-size:12px;
+  margin:25px;
+}
+.recording{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.55}}
+@media(max-width:500px){
+  .prompts{grid-template-columns:1fr}
+  .wrap{margin:8px auto}
+  .paper{padding:16px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="hero">
+  <div class="eyebrow">✈ FLYASIA · MILO'S LITTLE TRAVEL JOURNAL</div>
+  <h1>🎙️ Milo's Speaking Studio!</h1>
+  <p id="missionLabel">🏝️ MISSION 04 · BEACH DAY 🐱</p>
+</header>
+
+<section class="paper">
+  <h2>🗣️ Your turn to speak!</h2>
+  <p id="promptIntro">
+    Look at your beach timeline. Tell Milo's story using three full sentences.
+  </p>
+
+  <div class="prompts" id="prompts">
+    <div class="prompt"><b>FIRST…</b>First, Milo ______.</div>
+    <div class="prompt"><b>NEXT…</b>Next, he ______.</div>
+    <div class="prompt"><b>FINALLY…</b>Finally, he ______.</div>
+  </div>
+
+  <p>
+    Ready? Press <b>Start Recording</b>, say your sentences,
+    then press <b>Stop</b>. Listen to your voice and try again if you want!
+  </p>
+
+  <button class="btn" id="start">🎙️ Start Recording</button>
+  <button class="btn alt" id="stop" disabled>⏹ Stop Recording</button>
+  <button class="btn alt" id="again" disabled>🗑️ Delete & Try Again</button>
+
+  <p class="status" id="status" role="status" aria-live="polite">
+    Ready to record! 🎤
+  </p>
+
+  <audio id="playback" controls aria-label="Listen to your recording"></audio>
+
+  <p class="tip">
+    🔐 Your voice stays in this tab. Nothing is uploaded or saved online.
+    The recording disappears when you close or reload this page.
+  </p>
+
+  <p class="tip" id="returnTip">
+    <b>Finished?</b> Go back to Mission 4 on Google Sites,
+    tick the speaking practice box, and claim your badge! 🏅
+  </p>
+</section>
+
+<p class="footer">FLYASIA ✈ MILO'S HOLIDAY ADVENTURE · MADE WITH ♥</p>
+</main>
+
+<script>
+if(new URLSearchParams(location.search).get('mission')==='3'){
+  document.getElementById('missionLabel').textContent =
+    '🎫 MISSION 03 · AIRPORT ADVENTURE 🐱';
+
+  document.getElementById('promptIntro').textContent =
+    'Pretend you are Milo at the airport! Say his flight details clearly.';
+
+  document.getElementById('prompts').innerHTML = `
+    <div class="prompt" style="grid-column:1/-1">
+      <b>MY AIRPORT ANNOUNCEMENT ✈️</b>
+      “Hello! I'm Milo. I'm flying to Langkawi with my family.
+      My flight is at 10 o'clock, and my gate is B4.”
+    </div>`;
+
+  document.getElementById('returnTip').innerHTML =
+    '<b>Finished?</b> Go back to Mission 3 on Google Sites, tick the speaking practice box, and claim your Airport Explorer Badge! 🏅';
+}
+
+const $ = id => document.getElementById(id);
+let recorder, stream, chunks = [], url;
+
+const status = msg => $('status').textContent = msg;
+
+function cleanup(){
+  if(stream){
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+}
+
+function resetAudio(){
+  const a = $('playback');
+  a.pause();
+  a.removeAttribute('src');
+  a.load();
+  a.classList.remove('ready');
+
+  if(url){
+    URL.revokeObjectURL(url);
+    url = null;
+  }
+}
+
+$('start').onclick = async () => {
+  if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder){
+    status('Microphone unavailable. Open this page through a public HTTPS address in Chrome or Safari.');
+    return;
+  }
+
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    resetAudio();
+    chunks = [];
+
+    const types = [
+      'audio/webm;codecs=opus',
+      'audio/mp4',
+      'audio/webm'
+    ];
+
+    const type = types.find(t => MediaRecorder.isTypeSupported(t));
+    recorder = new MediaRecorder(stream, type ? {mimeType:type} : undefined);
+
+    recorder.ondataavailable = e => {
+      if(e.data.size) chunks.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      cleanup();
+      $('start').disabled = false;
+      $('stop').disabled = true;
+      $('start').classList.remove('recording');
+
+      if(!chunks.length){
+        status('No sound was recorded. Please try again.');
+        return;
+      }
+
+      url = URL.createObjectURL(
+        new Blob(chunks, {type:recorder.mimeType})
+      );
+
+      $('playback').src = url;
+      $('playback').classList.add('ready');
+      $('again').disabled = false;
+      status('✨ Great job! Press Play to listen to your voice.');
+    };
+
+    recorder.start(250);
+    $('start').disabled = true;
+    $('start').classList.add('recording');
+    $('stop').disabled = false;
+    $('again').disabled = true;
+    status('🔴 Recording! Say your three sentences.');
+
+  }catch(e){
+    cleanup();
+    status(
+      e.name === 'NotAllowedError'
+      ? 'Microphone permission denied. Check your browser microphone settings.'
+      : 'Could not start recording. Try a secure HTTPS page.'
+    );
+  }
+};
+
+$('stop').onclick = () => {
+  if(recorder?.state === 'recording'){
+    status('Finishing your recording…');
+    recorder.stop();
+  }
+};
+
+$('again').onclick = () => {
+  resetAudio();
+  $('again').disabled = true;
+  status('Ready to record again! 🎤');
+};
+
+window.addEventListener('pagehide', () => {
+  cleanup();
+  resetAudio();
+});
+</script>
+</body>
+</html>
